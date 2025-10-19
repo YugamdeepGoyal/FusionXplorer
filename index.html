@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nuclear Fusion Explorer</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
+    <style>
+      :root {
+        --accent: #00d1ff;
+        --bg: #07070a;
+        --card: #25272bd6;
+        --muted: #9fb3c8;
+        --glow: rgba(0, 209, 255, 0.4);
+      }
+      .color-correct {
+        color: white;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        background: linear-gradient(180deg, #050508 0%, #0b0c10 100%);
+        color: #e6f7ff;
+        font-family: "Poppins", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        scroll-behavior: smooth;
+      }
+      .navbar {
+        background: rgba(5, 5, 6, 0.8);
+        border-bottom: 1px solid #111;
+        backdrop-filter: blur(8px); /* Add a cool frosted glass effect */
+      }
+      .brand {
+        color: var(--accent);
+        font-weight: 700;
+        text-shadow: 0 0 5px var(--glow); /* Brand glow */
+      }
+      .nav-link:hover {
+        color: var(--accent) !important;
+        text-shadow: 0 0 4px var(--glow);
+        transition: all 0.3s ease;
+      }
+
+      .hero {
+        background: url("https://images.unsplash.com/photo-1447433909565-04bfc496fe71?auto=format&fit=crop&w=1950&q=80")
+          center/cover no-repeat;
+        position: relative;
+      }
+      .hero::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(2, 6, 12, 0.7); /* Slightly darker overlay */
+        z-index: 1;
+      }
+      .hero .container {
+        position: relative;
+        z-index: 2;
+      }
+      .hero-title {
+        font-size: clamp(2rem, 4.5vw, 3.8rem);
+        line-height: 1.05;
+        font-weight: 700;
+        text-shadow: 0 0 10px rgba(0, 209, 255, 0.6);
+
+        background: linear-gradient(90deg, #00d1ff, #50ff50, #00d1ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+      }
+      .hero-sub {
+        color: var(--muted);
+        font-size: 1.1rem;
+      }
+
+      .btn-accent {
+        background: var(--accent);
+        color: #021216;
+        border: none;
+        border-radius: 40px;
+        padding: 10px 26px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+      .btn-accent:hover {
+        background: #fff;
+        box-shadow: 0 0 15px var(--accent); /* Button glow on hover */
+      }
+      .btn-outline-light {
+        border-radius: 40px;
+        transition: all 0.3s ease;
+      }
+      .btn-outline-light:hover {
+        background: var(--accent);
+        color: #021216 !important;
+        border-color: var(--accent);
+      }
+
+      .card-dark {
+        background: var(--card);
+        border: 1px solid #1a1a1a; /* Darker, more subtle border */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Lifted shadow */
+        transition: all 0.3s ease;
+      }
+      .card-dark:hover {
+        border-color: var(--accent); /* Subtle hover effect */
+        box-shadow: 0 0 10px rgba(0, 209, 255, 0.2);
+      }
+      .section-title {
+        color: #dff7ff;
+        font-weight: 700; /* Bolder titles */
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--accent); /* Underline titles with accent */
+        display: inline-block;
+      }
+      .muted {
+        color: var(--muted);
+      }
+
+      /* specific component styling */
+      /* .form-control{ border-color: #222 !important; }
+        .form-control:focus{ 
+            background-color: var(--card) !important;
+            border-color: var(--accent) !important; 
+            box-shadow: 0 0 0 0.25rem var(--glow);
+        } */
+
+      .form-control {
+        /* --- START INPUT VISIBILITY FIX --- */
+        background-color: #454b56 !important; /* Explicit, dark background */
+        border-color: #2b303a !important; /* Lighter border for definition */
+        color: #e6f7ff !important; /* Ensure text is light */
+        /* --- END INPUT VISIBILITY FIX --- */
+      }
+      .form-control:focus {
+        background-color: #14171d !important; /* Maintain background on focus */
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 0.25rem var(--glow);
+      }
+      /* responsive tweaks */
+      @media (max-width: 576px) {
+        .hero {
+          height: 65vh;
+        }
+      }
+      @media (min-width: 577px) {
+        .hero {
+          height: 88vh;
+        }
+      }
+
+      footer {
+        background: #030304;
+        border-top: 1px solid #111;
+        margin-top: 30px; /* Add space above footer */
+      }
+
+      /* small smooth shadow */
+      .floating {
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      }
+    </style>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand brand" href="#">Fusion Explorer</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navMenu"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="#process">Process</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#compare">Fusion vs Fission</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#progress">Global Progress</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#india">India</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#feasibility">Feasibility & Apps</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#calculator">Calculator</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div style="height: 80px"></div>
+    <header id="home" class="hero d-flex align-items-center">
+      <div class="container text-center text-md-start">
+        <div class="row align-items-center">
+          <div class="col-md-7">
+            <h1 class="hero-title text-white">
+              Nuclear Fusion — Powering the Future
+            </h1>
+            <p class="hero-sub">
+              Clean. Limitless. Safe energy — fusion could solve energy and
+              environmental crises for generations.
+            </p>
+            <div class="mt-3">
+              <a
+                href="#calculator"
+                class="btn btn-accent me-2"
+                style="margin-bottom: 5px"
+                >Try Impact Calculator</a
+              >
+              <a href="#process" class="btn btn-outline-light"
+                >Explore The Science →</a
+              >
+            </div>
+          </div>
+          <div class="col-md-5 d-none d-md-block">
+            <div class="card card-dark p-3 floating">
+              <h5 class="mb-2">Project summary</h5>
+              <p class="muted small">
+                An interactive educational platform covering: process of fusion,
+                comparison with fission, global advancements, India’s efforts,
+                feasibility, applications and sustainability solutions.
+              </p>
+              <ul class="small muted mb-0">
+                <li>Includes a CO₂ impact calculator and visual comparisons</li>
+                <li>Mobile responsive, built with Bootstrap & Chart.js</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="process" data-aos="fade-up" data-aos-delay="100" class="py-5">
+      <div class="container">
+        <h2 class="section-title" data-aos="fade-up">
+          Process of Nuclear Fusion
+        </h2>
+        <div class="row align-items-center mt-4">
+          <div class="col-lg-6">
+            <p>
+              Fusion happens when two light nuclei (usually hydrogen isotopes
+              like <strong>deuterium</strong> and <strong>tritium</strong>) are
+              heated to extremely high temperatures to form a plasma. If these
+              nuclei come close enough, the strong nuclear force binds them into
+              a heavier nucleus (e.g. helium) and releases large amounts of
+              energy.
+            </p>
+
+            <div class="card card-dark p-4 mt-3 text-center">
+              <div
+                class="mt-3"
+                style="
+                  height: 90px;
+                  background: rgba(0, 209, 255, 0.1);
+                  padding: 2px;
+                  border-radius: 8px;
+                  border: 1px dashed var(--accent);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <p class="lead text-accent mb-1 color-correct">
+                  D + T → He + n + Energy
+                </p>
+              </div>
+
+              <p class="small muted mb-0" style="padding: 2px">
+                Deuterium + Tritium fuse to produce Helium, a high-energy
+                neutron, and massive energy release.
+              </p>
+              <!-- <div class="mt-3" style="height: 100px; background: rgba(0, 209, 255, 0.1); border-radius: 8px; border: 1px dashed var(--accent); display:flex; align-items:center; justify-content:center;">
+                            <span class="muted small">[Fusion Reaction Diagram Placeholder]</span>
+                        </div> -->
+            </div>
+
+            <ol class="mt-4">
+              <li>Form plasma by heating fuel to 100+ million °C.</li>
+              <li>
+                Confine plasma using magnetic fields (tokamak) or inertial
+                compression (lasers).
+              </li>
+              <li>
+                Fusion reactions release energy and neutrons; convert kinetic
+                energy to electricity.
+              </li>
+            </ol>
+          </div>
+          <div class="col-lg-6">
+            <div class="card card-dark p-3 h-100">
+              <h5 class="color-correct" style="font-weight: bold">
+                Key outputs
+              </h5>
+              <ul style="color: #c9f9ff">
+                <li>Helium nucleus (inert, non-toxic)</li>
+                <li>High-energy neutrons (used for heat exchange)</li>
+                <li>Large energy release (E = mc<sup>2</sup> principle)</li>
+              </ul>
+              <p class="muted small mb-0">
+                Energy is mainly kinetic; suitable shielding and materials are
+                required to handle neutron flux.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="compare"
+      data-aos="fade-up"
+      data-aos-delay="200"
+      class="py-5 bg-transparent"
+    >
+      <div class="container">
+        <h2 class="section-title">Fusion vs Fission</h2>
+        <div class="row mt-4 color-correct">
+          <div class="col-md-6 mb-3">
+            <div class="card card-dark p-3 h-100">
+              <h5 class="color-correct">Fusion (The Future)</h5>
+              <ul class="muted">
+                <li>Combines light nuclei (e.g., D + T)</li>
+                <li>High temperatures; magnetic or inertial confinement</li>
+                <li>Minimal, short-lived radioactive waste</li>
+                <li>Inherently safe — no chain-reaction meltdown</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="card card-dark p-3 h-100">
+              <h5 class="color-correct">Fission (The Present)</h5>
+              <ul class="muted">
+                <li>Splits heavy nuclei (e.g., U-235)</li>
+                <li>Used in current nuclear power plants</li>
+                <li>Produces long-lived radioactive waste</li>
+                <li>Risk of meltdown if safety systems fail</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="progress" data-aos="fade-up" data-aos-delay="300" class="py-5">
+      <div class="container">
+        <h2 class="section-title">Current Global Advancements</h2>
+        <p class="muted">
+          Countries and international projects are making steady progress toward
+          functional fusion power.
+        </p>
+        <div class="row mt-3">
+          <div class="col-md-4 mb-3">
+            <div class="card card-dark p-3 h-100">
+              <h6 class="color-correct">ITER (France) 🇫🇷</h6>
+              <p class="small muted">
+                Global experimental tokamak; aims to demonstrate net energy gain
+                ($Q > 1$) from fusion.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="card card-dark p-3 h-100">
+              <h6 class="color-correct">Private Companies 🚀</h6>
+              <p class="small muted">
+                Several startups (compact tokamaks, stellarators, high-field
+                magnets) are accelerating commercialization with novel
+                approaches.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="card card-dark p-3 h-100">
+              <h6 class="color-correct">Research Facilities 🔬</h6>
+              <p class="small muted">
+                National labs developing materials, superconducting magnets, and
+                plasma control techniques for commercial reactors.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="india" data-aos="fade-up" data-aos-delay="400" class="py-5">
+      <div class="container">
+        <h2 class="section-title">India's Stance & Progress</h2>
+        <div class="row mt-3">
+          <div class="col-md-8">
+            <p>
+              India contributes significantly to ITER and runs domestic programs
+              such as <strong>ADITYA-U</strong> and <strong>SST-1</strong>.
+              National institutes (e.g., IPR, BARC) and steady funding show
+              India's intent to be a key player in fusion R&D.
+            </p>
+            <ul class="muted small">
+              <li>
+                ADITYA-U: A tokamak demonstrating high-temperature plasmas.
+              </li>
+              <li>
+                SST-1: India's superconducting tokamak for advanced plasma
+                research.
+              </li>
+              <li>
+                Budgetary support: ongoing investments in fusion research
+                infrastructure and international collaborations.
+              </li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <div class="card card-dark p-3 h-100">
+              <h6 class="color-correct">Why it matters for India</h6>
+              <p class="small muted mb-0">
+                Fusion offers a sustainable solution for India's growing
+                electricity demand and can secure long-term energy independence
+                for a large and rapidly developing population.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="feasibility"
+      data-aos="fade-up"
+      data-aos-delay="500"
+      class="py-5 bg-transparent"
+    >
+      <div class="container">
+        <h2 class="section-title">Feasibility & Applications</h2>
+        <div class="row mt-3">
+          <div class="col-lg-6 mb-3">
+            <div class="card card-dark p-3 h-100 color-correct">
+              <h6>Challenges</h6>
+              <ul class="muted">
+                <li>Extremely high temperatures (~150 million &deg;C)</li>
+                <li>Plasma confinement and stability control</li>
+                <li>Developing neutron-resistant reactor wall materials</li>
+                <li>Economic scaling from demo to commercial plants</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-3">
+            <div class="card card-dark p-3 h-100 color-correct">
+              <h6>Applications</h6>
+              <ul class="muted">
+                <li>Large-scale, non-intermittent clean electricity</li>
+                <li>Desalination and freshwater production</li>
+                <li>Space propulsion and long-duration missions</li>
+                <li>Industrial process heat and green hydrogen production</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="calculator"
+      data-aos="fade-up"
+      data-aos-delay="600"
+      class="py-5"
+    >
+      <div class="container">
+        <h2 class="section-title">Fusion Impact Calculator 💡</h2>
+        <p class="muted">
+          Estimate CO₂ savings if fusion replaces coal for a given annual
+          electricity consumption.
+        </p>
+
+        <div class="row mt-3">
+          <div class="col-lg-6 mb-3">
+            <div class="card card-dark p-3 h-100">
+              <label for="energyInput" class="form-label color-correct"
+                >Annual electricity consumption (kWh)</label
+              >
+              <input
+                id="energyInput"
+                type="number"
+                class="form-control color-correct bg-transparent text-light"
+                placeholder="e.g., 10000"
+              />
+              <div class="mt-3 d-grid">
+                <button id="calcBtn" class="btn btn-accent">
+                  Calculate CO₂ Impact
+                </button>
+              </div>
+              <p class="mt-3 small muted">
+                Assumptions: Coal CO₂ factor ≈ 0.9 kg CO₂ / kWh. Fusion direct
+                CO₂ ≈ 0 (operational). Results are approximate and for
+                educational purposes.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-lg-6 mb-3">
+            <div
+              class="card card-dark p-3 h-100"
+              style="height: 450px; color: white"
+            >
+              <h6>Result & Comparison</h6>
+              <div id="resultText" class="lead">
+                Enter a value and press Calculate.
+              </div>
+              <div style="height: 300px; width: 100%">
+                <canvas id="impactChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="future" data-aos="fade-up" data-aos-delay="700" class="py-5">
+      <div class="container">
+        <h2 class="section-title">Approach & Solutions</h2>
+        <p class="muted">
+          Key areas of focus to accelerate fusion adoption and ensure real-world
+          feasibility.
+        </p>
+        <div class="row mt-3">
+          <div class="col-md-4 mb-3">
+            <div class="card card-dark p-3 h-100">
+              <h6>Material Science</h6>
+              <p class="small muted mb-0">
+                Develop neutron-resistant materials and advanced
+                tritium-breeding blankets for reactor walls.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="card card-dark p-3 h-100">
+              <h6>Advanced Magnets</h6>
+              <p class="small muted mb-0">
+                High-temperature superconductors enable more compact, efficient,
+                and higher-field confinement devices.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="card card-dark p-3 h-100">
+              <h6>Policy & Funding</h6>
+              <p class="small muted mb-0">
+                Stable, long-term funding and streamlined international
+                collaboration speed development and commercialization.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="team"
+      data-aos="fade-up"
+      data-aos-delay="800"
+      class="py-5 bg-transparent"
+    >
+      <div class="container">
+        <h2 class="section-title">Our Team</h2>
+        <p class="muted color-correct">Project members as listed in the PPT.</p>
+        <div class="row mt-3">
+          <div class="col-md-4 mb-3">
+            <div class="card card-dark p-3 h-100">
+              <h6 style="font-weight: bold" class="color-correct">
+                Team Members
+              </h6>
+              <ul class="small muted mb-0">
+                <li>Vansh Singal — 1025250032</li>
+                <li>Yugamdeep Goyal — 1025250114</li>
+                <li>Ananya Tanwar — 1025250019</li>
+                <li>Manal Kaura — 1025250062</li>
+                <li>Omkar Kumar — 1025250050</li>
+                <li>Nishant Singh — 1025250052</li>
+                <li>Ahaan Luther — 1025250112</li>
+                <li>Angadveer Singh — 1025250124</li>
+                <li>Srishti Gupta — 1025250004</li>
+                <li>Aastha — 1025250029</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-8 mb-3">
+            <div class="card card-dark p-3 h-100">
+              <h6 class="mb-2">Project Abstract</h6>
+              <p class="muted small">
+                This project explores nuclear fusion as a future energy source.
+                It explains the fusion process, compares it with fission,
+                summarizes global and national progress, and evaluates
+                feasibility and applications such as desalination, space
+                missions, and green hydrogen. The website includes an
+                interactive calculator to estimate CO₂ savings and visual tools
+                to communicate research to a wider audience, demonstrating the
+                pathway to sustainable energy for India and the world.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="references" class="py-5">
+      <div class="container">
+        <h2 class="section-title">References</h2>
+        <p class="muted small">
+          Selected sources: ITER official site, IAEA fusion pages, India
+          Institute for Plasma Research publications, DOE fusion energy
+          resources.
+        </p>
+      </div>
+    </section>
+
+    <footer class="py-4 text-center">
+      <div class="container small muted">
+        © 2025 Fusion Explorer — Energy & Environment (UEN008). Built by
+        Yugamdeep Goyal.
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Ensure the ChartDataLabels plugin is globally registered with Chart.js
+      Chart.register(ChartDataLabels);
+
+      const calcBtn = document.getElementById("calcBtn");
+      const energyInput = document.getElementById("energyInput");
+      const resultText = document.getElementById("resultText");
+
+      // default factors
+      const coalFactor = 0.9; // kg CO2 per kWh (approximate)
+      const fusionFactor = 0.01; // operational lifecycle CO2 ~ small (placeholder)
+      const idealFusion = 0.00001; // Essentially zero for ideal operation
+
+      let chart; // Chart.js instance
+
+      // Function to create/update Chart.js
+      function updateChart(coalEm, fusionReal, fusionIdeal) {
+        const ctx = document.getElementById("impactChart").getContext("2d");
+
+        // Crucial fix: Destroy existing chart instance before creating a new one
+        if (chart) chart.destroy();
+
+        chart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["Coal", "Fusion (Realistic)", "Fusion (Ideal)"],
+            datasets: [
+              {
+                label: "Annual CO₂ emissions (kg)",
+                data: [coalEm, fusionReal, fusionIdeal],
+                backgroundColor: [
+                  "rgba(255,76,76,0.85)",
+                  "rgba(0,209,255,0.9)",
+                  "rgba(50,205,50,0.9)",
+                ],
+                borderRadius: 5, // Rounded bars
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false, // Allows the chart to fit the container height
+            animation: { duration: 1200, easing: "easeOutQuart" },
+            scales: {
+              x: {
+                grid: { color: "rgba(255, 255, 255, 0.05)" },
+                ticks: { color: "#e6f7ff" },
+              },
+              y: {
+                beginAtZero: true,
+                grid: { color: "rgba(255, 255, 255, 0.15)" },
+                ticks: { color: "#e6f7ff" },
+              },
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: true, mode: "index", intersect: false },
+              title: {
+                display: true,
+                text: "Estimated Annual CO₂ Emissions Comparison (kg)",
+                color: "#dff7ff",
+              },
+              // ChartDataLabels plugin configuration
+              datalabels: {
+                align: "end",
+                anchor: "end",
+                color: "#fff",
+                formatter: (value) => {
+                  // Format for thousands/millions, but handle near-zero ideal fusion
+                  if (value < 1) return "< 1";
+                  return value.toLocaleString();
+                },
+                font: { weight: "bold" },
+              },
+            },
+          },
+        });
+      }
+
+      // Calculator button event listener
+      calcBtn.addEventListener("click", () => {
+        const kwh = Number(energyInput.value);
+        if (!kwh || kwh <= 0) {
+          resultText.innerHTML =
+            "⚠️ Please enter a valid annual consumption (kWh) to calculate the impact.";
+          if (chart) chart.destroy();
+          return;
+        }
+
+        const coalEm = Math.round(kwh * coalFactor);
+        const fusionReal = Math.round(kwh * fusionFactor);
+        const fusionIdealValue = kwh * idealFusion;
+        const saved = coalEm - fusionReal;
+
+        // Animate the saved CO2 number (more dramatic)
+        let display = 0;
+        resultText.innerHTML = `<p class="mb-1 muted small">Estimated Annual Saving</p><h2 class="text-accent hero-title mb-0"><span id='countAnim'>0</span> kg</h2><p class="small muted">CO₂ saved (vs. coal)</p>`;
+
+        const targetElement = document.getElementById("countAnim");
+
+        let startTime;
+        const duration = 1500; // 1.5 seconds animation
+
+        const step = (timestamp) => {
+          if (!startTime) startTime = timestamp;
+          const progress = timestamp - startTime;
+          const percentage = Math.min(progress / duration, 1);
+
+          const currentValue = Math.round(percentage * saved);
+          targetElement.textContent = currentValue.toLocaleString();
+
+          if (percentage < 1) {
+            window.requestAnimationFrame(step);
+          }
+        };
+
+        window.requestAnimationFrame(step);
+
+        updateChart(coalEm, fusionReal, fusionIdealValue);
+      });
+
+      // small smooth scroll offset for fixed navbar
+      document.querySelectorAll("a.nav-link").forEach((a) => {
+        a.addEventListener("click", (e) => {
+          const href = a.getAttribute("href");
+          if (href && href.startsWith("#")) {
+            e.preventDefault();
+            const el = document.querySelector(href);
+            if (el) {
+              const y =
+                el.getBoundingClientRect().top + window.pageYOffset - 70; // Adjusted for navbar height
+              window.scrollTo({ top: y, behavior: "smooth" });
+            }
+          }
+        });
+      });
+    </script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+      AOS.init({
+        duration: 800,
+        easing: "ease-out-cubic",
+        delay: 120,
+        once: true,
+        mirror: false,
+        anchorPlacement: "top-bottom",
+        debounceDelay: 50,
+        throttleDelay: 90,
+      });
+    </script>
+  </body>
+</html>
